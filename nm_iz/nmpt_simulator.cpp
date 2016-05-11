@@ -1,6 +1,6 @@
-#include "nmptmodeler.h"
+#include "nmpt_simulator.h"
 
-NMPTmodeler::NMPTmodeler(double V, double U, double tau, double g, double dX0, double k_g, double k_sv, double m_st, double alpha)
+NMPT_simulator::NMPT_simulator(double V, double U, double tau, double g, double dX0, double k_g, double k_sv, double m_st, double alpha)
 {
     this->tau = tau;
     this->g = g;
@@ -11,26 +11,57 @@ NMPTmodeler::NMPTmodeler(double V, double U, double tau, double g, double dX0, d
     this->alpha = alpha;
     this->U = U;
     this->V = V;
+
+    max_iter_achieved = -1;
 }
 
-vector<StonePoint> NMPTmodeler::getStoneTrajectory()
+QVector<double> NMPT_simulator::getDuckX()
 {
-    return stone_trajectory;
-}
-vector<DuckPoint> NMPTmodeler::getDuckTrajectory()
-{
-    return duck_trajectory;
+    QVector<double> duck_x;
+    duck_x.resize(max_iter_achieved);
+
+    for(int i=0; i<max_iter_achieved; i++)
+    {
+        duck_x[i] = duck_trajectory[i].x;
+    }
+    return duck_x;
 }
 
-void NMPTmodeler::buildModel(int iterations_number)
+QVector<double> NMPT_simulator::getStoneX()
+{
+    QVector<double> stone_x;
+    stone_x.resize(max_iter_achieved);
+
+    for(int i=0; i<max_iter_achieved; i++)
+    {
+        stone_x[i] = stone_trajectory[i].x;
+    }
+    return stone_x;
+}
+
+QVector<double> NMPT_simulator::getStoneY()
+{
+    QVector<double> stone_y;
+    stone_y.resize(max_iter_achieved);
+
+    for(int i=0; i<max_iter_achieved; i++)
+    {
+        stone_y[i] = stone_trajectory[i].y;
+    }
+    return stone_y;
+}
+
+void NMPT_simulator::buildModel(int iterations_number)
 {
     stone_trajectory.resize(iterations_number);
     duck_trajectory.resize(iterations_number);
 
+    max_iter_achieved = iterations_number;
+
     stone_trajectory[0].x = 0;
     stone_trajectory[0].y=0;
-    stone_trajectory[0].Vx = cos(alpha)*V;
-    stone_trajectory[0].Vy = sin(alpha)*V;
+    stone_trajectory[0].Vx = qCos(qDegreesToRadians(alpha))*V;
+    stone_trajectory[0].Vy = qSin(qDegreesToRadians(alpha))*V;
 
     duck_trajectory[0].x = dX0;
     duck_trajectory[0].Vx = U;
@@ -43,7 +74,11 @@ void NMPTmodeler::buildModel(int iterations_number)
         moveDuck(i);
         moveStone(i);
 
-        if(stone_trajectory[i].y < 0) break;
+        if(stone_trajectory[i].y < 0)
+        {
+            max_iter_achieved = i;
+            break;
+        }
 
         if(abs(stone_trajectory[i].x - duck_trajectory[i].x) < closest_encounter.first)
         {
@@ -53,14 +88,14 @@ void NMPTmodeler::buildModel(int iterations_number)
     }
 }
 
-void NMPTmodeler::moveDuck(int iteration)
+void NMPT_simulator::moveDuck(int iteration)
 {
     //X coord
     duck_trajectory[iteration].x = duck_trajectory[iteration-1].Vx * tau + duck_trajectory[iteration-1].x;
     //X vel
     duck_trajectory[iteration].Vx = U;
 }
-void NMPTmodeler::moveStone(int iteration)
+void NMPT_simulator::moveStone(int iteration)
 {
     //X coord
     stone_trajectory[iteration].x = stone_trajectory[iteration-1].Vx * tau + stone_trajectory[iteration-1].x;
@@ -75,7 +110,7 @@ void NMPTmodeler::moveStone(int iteration)
     stone_trajectory[iteration].Vy = a_y * tau + stone_trajectory[iteration-1].Vy;
 }
 
-pair<double, int> NMPTmodeler::getClosestEncounter()
+pair<double, int> NMPT_simulator::getClosestEncounter()
 {
     return closest_encounter;
 }

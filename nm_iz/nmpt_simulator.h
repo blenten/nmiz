@@ -1,9 +1,9 @@
 #ifndef NMPTMODELER_H
 #define NMPTMODELER_H
 
-#include <vector>
 #include <tuple>
-#include <cmath>
+#include <QtMath>
+#include <QVector>
 
 using namespace std;
 
@@ -18,21 +18,30 @@ struct DuckPoint
 };
 
 
-class NMPTmodeler
+class NMPT_simulator
 {
 public:
-    NMPTmodeler(double V, double U, double tau, double g, double dX0, double k_g, double k_sv, double m_st, double alpha);
+    NMPT_simulator(double V, double U, double tau, double g, double dX0, double k_g, double k_sv, double m_st, double alpha);
+
     void buildModel(int iterations_number);
-    vector<StonePoint> getStoneTrajectory();
-    vector<DuckPoint> getDuckTrajectory();
+
+    QVector<double> getStoneX();
+    QVector<double> getStoneY();
+    QVector<double> getDuckX();
+
     pair<double, int> getClosestEncounter();
+
 private:
     void moveDuck(int iteration);
     void moveStone(int iteration);
 
-    vector<StonePoint> stone_trajectory;
-    vector<DuckPoint> duck_trajectory;
+    QVector<StonePoint> stone_trajectory;
+    QVector<DuckPoint> duck_trajectory;
+
+    int max_iter_achieved;
+
     double V, U, tau, g, dX0, k_g, k_sv, m_st, alpha;
+
     pair<double, int> closest_encounter;
 };
 
