@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>817</width>
-    <height>464</height>
+    <height>480</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -287,6 +287,13 @@
           </property>
           <property name="text">
            <string>Start</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="saveButton">
+          <property name="text">
+           <string>Save Trajectory</string>
           </property>
          </widget>
         </item>

@@ -3,17 +3,22 @@
 
 #include <tuple>
 #include <QtMath>
+#include <string>
 #include <QVector>
 
 using namespace std;
 
-struct StonePoint
+class StonePoint
 {
+public:
+    string ToString();
     double x, y, Vx, Vy;
 };
 
-struct DuckPoint
+class DuckPoint
 {
+public:
+    string ToString();
     double x, Vx;
 };
 
@@ -28,12 +33,16 @@ public:
     QVector<double> getStoneX();
     QVector<double> getStoneY();
     QVector<double> getDuckX();
+    QVector<DuckPoint> getDuckTrajectory();
+    QVector<StonePoint> getStoneTrajectory();
 
     pair<double, int> getClosestEncounter();
 
 private:
     void moveDuck(int iteration);
     void moveStone(int iteration);
+
+    void resize_trajectory(int max_iter);
 
     QVector<StonePoint> stone_trajectory;
     QVector<DuckPoint> duck_trajectory;

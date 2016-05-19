@@ -1,5 +1,17 @@
 #include "nmpt_simulator.h"
 
+string StonePoint::ToString()
+{
+    string res = std::to_string(x)+'\t'+std::to_string(y)+'\t'+std::to_string(Vx)+'\t'+std::to_string(Vy)+'\n';
+    return res;
+}
+
+string DuckPoint::ToString()
+{
+    string res = std::to_string(x)+'\t'+std::to_string(Vx)+'\n';
+    return res;
+}
+
 NMPT_simulator::NMPT_simulator(double V, double U, double tau, double g, double dX0, double k_g, double k_sv, double m_st, double alpha)
 {
     this->tau = tau;
@@ -51,6 +63,37 @@ QVector<double> NMPT_simulator::getStoneY()
     return stone_y;
 }
 
+QVector<StonePoint> NMPT_simulator::getStoneTrajectory()
+{
+
+    return stone_trajectory;
+}
+
+QVector<DuckPoint> NMPT_simulator::getDuckTrajectory()
+{
+    return duck_trajectory;
+}
+
+void NMPT_simulator::resize_trajectory(int max_iter)
+{
+    QVector<StonePoint> temp_st;
+    QVector<DuckPoint> temp_dck;
+    temp_st.resize(max_iter);
+    temp_dck.resize(max_iter);
+
+    for(int i=0; i<max_iter;i++)
+    {
+        temp_dck[i]=duck_trajectory[i];
+        temp_st[i]=stone_trajectory[i];
+    }
+
+    stone_trajectory.clear();
+    duck_trajectory.clear();
+
+    stone_trajectory = temp_st;
+    duck_trajectory = temp_dck;
+}
+
 void NMPT_simulator::buildModel(int iterations_number)
 {
     stone_trajectory.resize(iterations_number);
@@ -77,6 +120,7 @@ void NMPT_simulator::buildModel(int iterations_number)
         if(stone_trajectory[i].y < 0)
         {
             max_iter_achieved = i;
+            resize_trajectory(i);
             break;
         }
 

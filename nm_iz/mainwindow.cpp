@@ -11,6 +11,7 @@ MainWindow::MainWindow(QWidget *parent) :
 MainWindow::~MainWindow()
 {
     delete ui;
+    delete nmpt;
 }
 
 void MainWindow::on_build_model_button_clicked()
@@ -26,17 +27,17 @@ void MainWindow::on_build_model_button_clicked()
     T = ui->tau_line->text().toDouble();
     dX0 = ui->dX0_line->text().toDouble();
 
-    NMPT_simulator nmpt(V,U,T,g,dX0,k_g,k_sv,m,alpha);
-    nmpt.buildModel(ui->iter_line->text().toDouble());
+    nmpt = new NMPT_simulator(V,U,T,g,dX0,k_g,k_sv,m,alpha);
+    nmpt->buildModel(ui->iter_line->text().toDouble());
 
     ui->chart_widget->clearGraphs();
-    buildStoneChart(nmpt.getStoneX(),nmpt.getStoneY());
+    buildStoneChart(nmpt->getStoneX(),nmpt->getStoneY());
     double closest;
     int closest_index;
-    std::tie(closest, closest_index) = nmpt.getClosestEncounter();
+    std::tie(closest, closest_index) = nmpt->getClosestEncounter();
     if(closest < 1)
     {
-        buildDuckChart(nmpt.getDuckX(), nmpt.getStoneY(), closest_index);
+        buildDuckChart(nmpt->getDuckX(), nmpt->getStoneY(), closest_index);
     }
 }
 
@@ -71,4 +72,26 @@ void MainWindow::buildStoneChart(QVector<double> X, QVector<double> Y)
     ui->chart_widget->yAxis->setRange(0, Ymax);
 
     ui->chart_widget->replot();
+}
+
+void MainWindow::on_saveButton_clicked()
+{
+    QVector<StonePoint> st_traj = nmpt->getStoneTrajectory();
+    QVector<DuckPoint> dck_traj = nmpt->getDuckTrajectory();
+
+    ofstream fout;
+    fout.open("output.txt");
+
+    fout<<"STONE\n(X, Y, Vx, Vy)\n";
+    for(StonePoint sp : st_traj)
+    {
+        fout << sp.ToString();
+    }
+    fout<<"\n\nDUCK\n(X, Vx)\n";
+    for(DuckPoint dp : dck_traj)
+    {
+        fout << dp.ToString();
+    }
+
+    fout.close();
 }
