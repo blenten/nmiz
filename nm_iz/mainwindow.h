@@ -8,6 +8,12 @@
 #include <iostream>
 #include <fstream>
 
+enum SimulatorType
+{
+    NMPT_simple,
+    NMPT_modified
+};
+
 namespace Ui {
 class MainWindow;
 }
@@ -25,10 +31,15 @@ private slots:
 
     void on_saveButton_clicked();
 
+    void on_simType_box_toggled(bool checked);
+
 private:
 
     void buildStoneChart(QVector<double> X, QVector<double> Y);
     void buildDuckChart(QVector<double> X, QVector<double> Y, int closest_index);
+
+    NMPT_simulator* createSimulator();
+    SimulatorType simType;
 
     Ui::MainWindow *ui;
     NMPT_simulator *nmpt;

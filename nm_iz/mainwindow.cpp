@@ -6,12 +6,25 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
+    nmpt = nullptr;
+    simType = NMPT_simple;
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
-    delete nmpt;
+
+    if(nmpt!=nullptr) delete nmpt;
+}
+
+NMPT_simulator* MainWindow::createSimulator()
+{
+    if(simType==NMPT_modified)
+    {
+        return new NMPT_simulator_modified();
+    }
+     return new NMPT_simulator();
 }
 
 void MainWindow::on_build_model_button_clicked()
@@ -27,7 +40,9 @@ void MainWindow::on_build_model_button_clicked()
     T = ui->tau_line->text().toDouble();
     dX0 = ui->dX0_line->text().toDouble();
 
-    nmpt = new NMPT_simulator(V,U,T,g,dX0,k_g,k_sv,m,alpha);
+    if(nmpt!=nullptr) delete nmpt;
+    nmpt = createSimulator();
+    nmpt->set_data(V,U,T,g,dX0,k_g,k_sv,m,alpha);
     nmpt->buildModel(ui->iter_line->text().toDouble());
 
     ui->chart_widget->clearGraphs();
@@ -94,4 +109,15 @@ void MainWindow::on_saveButton_clicked()
     }
 
     fout.close();
+}
+
+void MainWindow::on_simType_box_toggled(bool checked)
+{
+    if(checked)
+    {
+        simType = NMPT_modified;
+    }else
+    {
+        simType = NMPT_simple;
+    }
 }

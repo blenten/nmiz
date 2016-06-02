@@ -94,6 +94,22 @@ void NMPT_simulator::resize_trajectory(int max_iter)
     duck_trajectory = temp_dck;
 }
 
+void NMPT_simulator::set_data(double V, double U, double tau, double g, double dX0,
+                              double k_g, double k_sv, double m_st, double alpha)
+{
+    this->tau = tau;
+    this->g = g;
+    this->dX0 = dX0;
+    this->k_g = k_g;
+    this->k_sv = k_sv;
+    this->m_st = m_st;
+    this->alpha = alpha;
+    this->U = U;
+    this->V = V;
+
+    max_iter_achieved = -1;
+}
+
 void NMPT_simulator::buildModel(int iterations_number)
 {
     stone_trajectory.resize(iterations_number);
@@ -157,4 +173,44 @@ void NMPT_simulator::moveStone(int iteration)
 pair<double, int> NMPT_simulator::getClosestEncounter()
 {
     return closest_encounter;
+}
+
+
+NMPT_simulator_modified::NMPT_simulator_modified(double V, double U, double tau, double g, double dX0,
+                                                 double k_g, double k_sv, double m_st, double alpha)
+{
+    this->tau = tau;
+    this->g = g;
+    this->dX0 = dX0;
+    this->k_g = k_g;
+    this->k_sv = k_sv;
+    this->m_st = m_st;
+    this->alpha = alpha;
+    this->U = U;
+    this->V = V;
+
+    max_iter_achieved = -1;
+}
+
+
+void NMPT_simulator_modified::moveDuck(int iteration)
+{
+    //X coord
+    duck_trajectory[iteration].x = duck_trajectory[iteration-1].Vx * tau + duck_trajectory[iteration-1].x;
+    //X vel
+    duck_trajectory[iteration].Vx = U;
+}
+
+void NMPT_simulator_modified::moveStone(int iteration)
+{
+    //X ve
+    stone_trajectory[iteration].Vx = stone_trajectory[iteration-1].Vx*(1 - (tau/2)*(k_sv/m_st))/(1 + (tau/2)*(k_sv/m_st));
+    //Y vel
+    stone_trajectory[iteration].Vy = (stone_trajectory[iteration-1].Vy*(1 + pow(tau,2)*k_g/4 - (tau/2)*(k_sv/m_st)) - tau*(g - k_g*stone_trajectory[iteration-1].y))
+                                    / (1 - pow(tau,2)*k_g/4 + (tau/2)*(k_sv/m_st));
+
+    //X coord
+    stone_trajectory[iteration].x = stone_trajectory[iteration-1].x + tau/2*(stone_trajectory[iteration-1].Vx+stone_trajectory[iteration].Vx);
+    //Y coord
+    stone_trajectory[iteration].y = stone_trajectory[iteration-1].y + tau/2*(stone_trajectory[iteration-1].Vy+stone_trajectory[iteration].Vy);
 }

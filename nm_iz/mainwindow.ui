@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>817</width>
-    <height>480</height>
+    <height>507</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -267,6 +267,19 @@
       </item>
       <item>
        <layout class="QVBoxLayout" name="build_control">
+        <item>
+         <widget class="QCheckBox" name="simType_box">
+          <property name="font">
+           <font>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>Use modified algorithm</string>
+          </property>
+         </widget>
+        </item>
         <item>
          <widget class="QLineEdit" name="iter_line">
           <property name="text">
