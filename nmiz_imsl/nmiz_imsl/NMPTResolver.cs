@@ -7,8 +7,8 @@ namespace nmiz_imsl
     public static class ResolverInputData
     {
         public static double x0 = 0.0, y0 = 0.0, dx0 = 4.0;
-        public static double U = 5.0, V = 15.0, alpha = 20.0;
-        public static double g = 9.8, kg = 0.3, ksv = 0.02, m = 2.0;
+        public static double U = 5.0, V = 14.0, alpha = 25.0;
+        public static double g = 9.8, kg = 0.05, ksv = 0.003, m = 0.5;
     }
 
     public class NMPTREsolverException : ApplicationException
@@ -48,11 +48,12 @@ namespace nmiz_imsl
         private class DuckTrajectory
         {
             public double[] X;
-            public double Y = 0.0;
+            public double Y;
 
             public DuckTrajectory(int len)
             {
                 X = new double[len];
+                Y = -1.0;
             }
         }
 
@@ -135,6 +136,24 @@ namespace nmiz_imsl
         StoneTrajectory stoneTraj;
         DuckTrajectory duckTraj;
 
+        private void resizeTraj(int len)
+        {
+            StoneTrajectory temps = new StoneTrajectory(len);
+            DuckTrajectory tempg = new DuckTrajectory(len);
+            for(int i=0; i<len; i++)
+            {
+                temps.X[i] = stoneTraj.X[i];
+                temps.Y[i] = stoneTraj.Y[i];
+                temps.Vx[i] = stoneTraj.Vx[i];
+                temps.Vy[i] = stoneTraj.Vy[i];
+
+                tempg.X[i] = duckTraj.X[i];
+            }
+            //tempg.Y = duckTraj.Y;
+            stoneTraj = temps;
+            duckTraj = tempg;
+        }
+
         public void Resolve(int iterationsNumber, double tau)
         {
             stoneTraj = new StoneTrajectory(iterationsNumber);
@@ -159,6 +178,12 @@ namespace nmiz_imsl
             {
                 q.Solve(t, t + tau, yvars);
 
+                if(yvars[3]<0)
+                {
+                    resizeTraj(i);
+                    break;
+                }
+
                 stoneTraj.Vx[i] = yvars[0];
                 stoneTraj.Vy[i] = yvars[1];
                 stoneTraj.X[i] = yvars[2];
@@ -174,6 +199,7 @@ namespace nmiz_imsl
 
         private void findClosestEncounter()
         {
+            ///FIXME: Y=0
             double closestX = Math.Abs(stoneTraj.X[0] - duckTraj.X[0]);
             int closestXIndex = 0;
             for(int i=1; i<stoneTraj.X.Length; i++)
