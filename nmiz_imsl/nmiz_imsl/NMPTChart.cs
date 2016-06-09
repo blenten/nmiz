@@ -10,19 +10,37 @@ namespace nmiz_imsl
 {
     class NMPTChart : FrameChart
     {
-        //double[] y, x;
-        public NMPTChart(double[] X, double[] Y)
+        AxisXY axis;
+        public NMPTChart()
         {
             Chart chart = this.Chart;
-            AxisXY axis = new AxisXY(chart);
-            new Data(axis, X, Y);
+            axis = new AxisXY(chart);
         }
 
-        public static void MakeChar(double[] X, double[] Y)
+        public void drawStoneTraj(double[] X, double[] Y)
         {
-            NMPTChart nmptc = new NMPTChart(X, Y);
-            nmptc.Width = 600;
-            nmptc.Height = 600;
+            new Data(axis, X, Y);
+        }
+        public void drawDuckTraj(double Y, int len)
+        {
+            double[] y = new double[len];
+            for(int i=0; i<y.Length; i++)
+            {
+                y[i] = Y;
+            }
+            new Data(axis, y);
+        }
+
+        public static void MakeChar(double[] X, double[] Y, double duckY=-1)
+        {
+            NMPTChart nmptc = new NMPTChart();
+            nmptc.Width = 800;
+            nmptc.Height = 300;
+            nmptc.drawStoneTraj(X, Y);
+            if(duckY>=0)
+            {
+                nmptc.drawDuckTraj(duckY, X.Length);
+            }
             nmptc.ShowDialog();
         }
     }

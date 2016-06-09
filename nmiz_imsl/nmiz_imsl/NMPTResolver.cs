@@ -189,7 +189,7 @@ namespace nmiz_imsl
                 stoneTraj.X[i] = yvars[2];
                 stoneTraj.Y[i] = yvars[3];
 
-                duckTraj.X[i] = duckTraj.X[i - 1] = ResolverInputData.U * tau;
+                duckTraj.X[i] = duckTraj.X[i - 1] + ResolverInputData.U * tau;
 
                 t += tau;
             }
@@ -199,7 +199,6 @@ namespace nmiz_imsl
 
         private void findClosestEncounter()
         {
-            ///FIXME: Y=0
             double closestX = Math.Abs(stoneTraj.X[0] - duckTraj.X[0]);
             int closestXIndex = 0;
             for(int i=1; i<stoneTraj.X.Length; i++)
